@@ -64,3 +64,34 @@ document.querySelectorAll('.nav-links a').forEach(link => {
     hamburger.classList.remove('active');
   });
 });
+
+  const form = document.getElementById("contact-form");
+
+  function showToast(message, type) {
+    const toast = document.getElementById("toast");
+
+    toast.innerText = message;
+    toast.className = "show " + type;
+
+    setTimeout(() => {
+      toast.className = "";
+    }, 3000);
+  }
+
+  form.addEventListener("submit", function(e) {
+    e.preventDefault();
+
+    emailjs.sendForm(
+     "service_lkf6llo",   
+      "template_c6phvmc",  
+      this
+    )
+    .then(() => {
+      showToast("Message sent successfully ✅", "success");
+      form.reset();
+    })
+    .catch((error) => {
+      showToast("Failed to send ❌", "error");
+      console.log(error);
+    });
+  });
