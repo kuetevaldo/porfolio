@@ -1,97 +1,221 @@
-type='text/javascript'>document.addEventListener('DOMContentLoaded', function () {window.setTimeout(document.querySelector('svg').classList.add('animated'),1000);})
+// ================= MOBILE NAVIGATION =================
 
-function revealOnScroll() {
-  const reveals = document.querySelectorAll('.reveal');
-
-  reveals.forEach((el) => {
-    const windowHeight = window.innerHeight;
-    const elementTop = el.getBoundingClientRect().top;
-    const visiblePoint = 100;
-
-    if (elementTop < windowHeight - visiblePoint) {
-      el.classList.add('active');
-    } else {
-      el.classList.remove('active');
-    }
-  });
-}
-
-// ================= NAVBAR =================
 const hamburger = document.querySelector('.hamburger');
 const navLinks = document.querySelector('.nav-links');
 
-// TOGGLE MENU
-hamburger.addEventListener('click', (e) => {
-  e.stopPropagation();
-  navLinks.classList.toggle('active');
-  hamburger.classList.toggle('active');
-});
+function closeNavigation() {
+  if (!hamburger || !navLinks) return;
 
-// CLOSE MENU WHEN CLICKING ANYWHERE
-document.addEventListener('click', () => {
   navLinks.classList.remove('active');
   hamburger.classList.remove('active');
-});
 
-// PREVENT CLOSING WHEN CLICKING INSIDE MENU
-navLinks.addEventListener('click', (e) => {
-  e.stopPropagation();
-});
-
-
-// ================= SCROLL ANIMATION =================
-function revealOnScroll() {
-  const reveals = document.querySelectorAll('.reveal');
-
-  reveals.forEach((el) => {
-    const windowHeight = window.innerHeight;
-    const elementTop = el.getBoundingClientRect().top;
-    const visiblePoint = 100;
-
-    if (elementTop < windowHeight - visiblePoint) {
-      el.classList.add('active');
-    } else {
-      el.classList.remove('active');
-    }
-  });
+  hamburger.setAttribute('aria-expanded', 'false');
+  hamburger.setAttribute('aria-label', 'Open navigation menu');
 }
 
-window.addEventListener('scroll', revealOnScroll);
-// CLOSE MENU WHEN CLICKING A LINK
-document.querySelectorAll('.nav-links a').forEach(link => {
-  link.addEventListener('click', () => {
-    navLinks.classList.remove('active');
-    hamburger.classList.remove('active');
+if (hamburger && navLinks) {
+
+  hamburger.addEventListener('click', (event) => {
+    event.stopPropagation();
+
+    const isOpen = navLinks.classList.toggle('active');
+
+    hamburger.classList.toggle('active', isOpen);
+
+    hamburger.setAttribute(
+      'aria-expanded',
+      String(isOpen)
+    );
+
+    hamburger.setAttribute(
+      'aria-label',
+      isOpen
+        ? 'Close navigation menu'
+        : 'Open navigation menu'
+    );
   });
-});
 
-  const form = document.getElementById("contact-form");
 
-  function showToast(message, type) {
-    const toast = document.getElementById("toast");
-
-    toast.innerText = message;
-    toast.className = "show " + type;
-
-    setTimeout(() => {
-      toast.className = "";
-    }, 3000);
-  }
-
-  form.addEventListener("submit", function(e) {
-    e.preventDefault();
-
-    emailjs.sendForm(
-     "service_lkf6llo",   
-      "template_c6phvmc",  
-      this
-    )
-    .then(() => {
-      showToast("Message sent successfully ✅", "success");
-      form.reset();
-    })
-    .catch((error) => {
-      showToast("Failed to send ❌", "error");
-      console.log(error);
-    });
+  // Prevent outside click handler from firing
+  // when clicking inside the mobile menu.
+  navLinks.addEventListener('click', (event) => {
+    event.stopPropagation();
   });
+
+
+  // Close menu when clicking outside.
+  document.addEventListener('click', closeNavigation);
+
+
+  // Close menu after clicking a navigation link.
+  document.querySelectorAll('.nav-links a').forEach((link) => {
+    link.addEventListener('click', closeNavigation);
+  });
+
+
+  // Close menu with Escape key.
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') {
+      closeNavigation();
+    }
+  });
+
+}
+
+
+// ================= SCROLL REVEAL =================
+
+const revealElements = document.querySelectorAll('.reveal');
+
+if (
+  'IntersectionObserver' in window &&
+  revealElements.length
+) {
+
+  const revealObserver = new IntersectionObserver(
+    (entries, observer) => {
+
+      entries.forEach((entry) => {
+
+        if (entry.isIntersecting) {
+          entry.target.classList.add('active');
+
+          // Stop observing after the element
+          // has appeared once.
+          observer.unobserve(entry.target);
+        }
+
+      });
+
+    },
+    {
+      threshold: 0.12
+    }
+  );
+
+
+  revealElements.forEach((element) => {
+    revealObserver.observe(element);
+  });
+
+} else {
+
+  // Fallback for older browsers.
+  revealElements.forEach((element) => {
+    element.classList.add('active');
+  });
+
+}
+
+
+// ================= TOAST MESSAGE =================
+
+let toastTimer;
+
+function showToast(message, type = '') {
+
+  const toast = document.getElementById('toast');
+
+  if (!toast) return;
+
+
+  // Prevent multiple timers from overlapping.
+  window.clearTimeout(toastTimer);
+
+
+  toast.textContent = message;
+
+  toast.className = type
+    ? `show ${type}`
+    : 'show';
+
+
+  toastTimer = window.setTimeout(() => {
+    toast.className = '';
+  }, 3000);
+
+}
+
+
+// ================= CONTACT FORM =================
+
+const contactForm = document.getElementById('contact-form');
+
+if (contactForm) {
+
+  contactForm.addEventListener(
+    'submit',
+    function (event) {
+
+      event.preventDefault();
+
+
+      // Make sure EmailJS loaded correctly.
+      if (typeof emailjs === 'undefined') {
+
+        showToast(
+          'Email service is unavailable. Please try again later.',
+          'error'
+        );
+
+        return;
+      }
+
+
+      const submitButton = contactForm.querySelector(
+        'button[type="submit"]'
+      );
+
+
+      // Prevent duplicate submissions.
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = 'Sending...';
+      }
+
+
+      emailjs
+        .sendForm(
+          'service_lkf6llo',
+          'template_c6phvmc',
+          contactForm
+        )
+
+        .then(() => {
+
+          showToast(
+            'Message sent successfully ✅',
+            'success'
+          );
+
+          contactForm.reset();
+
+        })
+
+        .catch((error) => {
+
+          console.error(
+            'EmailJS error:',
+            error
+          );
+
+          showToast(
+            'Failed to send. Please try again.',
+            'error'
+          );
+
+        })
+
+        .finally(() => {
+
+          if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.textContent = 'Send Message';
+          }
+
+        });
+
+    }
+  );
+
+}
