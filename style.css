@@ -423,6 +423,26 @@ section {
   border-bottom: 1px solid var(--border);
 }
 
+.about-cv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24px;
+  padding: 12px 20px;
+  border: 1px solid #3b82f6;
+  border-radius: 7px;
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  transition: 0.2s ease;
+}
+
+.about-cv-btn:hover {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
 .about-detail span {
   color: var(--muted-2);
   font-size: 0.75rem;
@@ -1212,5 +1232,12 @@ section {
   .reveal {
     opacity: 1;
     transform: none;
+  }
+}
+@media (max-width: 768px) {
+  .about-cv-btn {
+    width: 100%;
+    max-width: 240px;
+    margin-top: 22px;
   }
 }
