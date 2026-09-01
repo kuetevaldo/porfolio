@@ -703,8 +703,16 @@ section {
   background-image: url("image/Laboratoire\ L’Odyssey.png");
 }
 
+.project-lamarquise {
+  background-image: url("image/la-marquise.png");
+}
+
 .project-paul {
   background-image: url("image/paul.png");
+}
+
+.project-orawellness {
+  background-image: url("image/ora-wellness.png");
 }
 
 .project-image-label {
